@@ -1,4 +1,4 @@
-FROM ubuntu:12.04 as buildbase
+FROM ubuntu:12.04 AS buildbase
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -22,21 +22,16 @@ apt-get install -y \
 apt-get clean
 EOF
 
-RUN <<-EOF
-gcc -v
-python -V
-perl -V
-make --version
-EOF
-
 WORKDIR /build
 ADD https://static.rust-lang.org/dist/rust-${RUST_VER}.tar.gz ./archive.tar.gz
 RUN tar -xzf ./archive.tar.gz
 
 # artifact will be i686-unknown-linux-gnu/stage2/bin/rustc
-# test i686-unknown-linux-gnu/stage2/bin/rustc src/test/run-pass/issue-3878.rs
-WORKDIR /build/rust-0.7/
 RUN <<-EOF
+cd /build/rust-$RUST_VER/
 ./configure
 make
 EOF
+
+WORKDIR /build/rust-$RUST_VER/
+RUN i686-unknown-linux-gnu/stage2/bin/rustc src/test/run-pass/issue-3878.rs
